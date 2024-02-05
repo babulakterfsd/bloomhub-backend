@@ -1,7 +1,9 @@
 import httpStatus from 'http-status';
+import jwt from 'jsonwebtoken';
 import config from '../../config';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
+import { TDecodedShopkeeper } from './auth.interface';
 import { ShopkeeperServices } from './auth.service';
 
 //create shopkeeper
@@ -68,9 +70,34 @@ const getAccessTokenUsingRefreshToken = catchAsync(async (req, res) => {
   });
 });
 
+//change password
+const changePassword = catchAsync(async (req, res) => {
+  const passwordData = req.body;
+  const token = req?.headers?.authorization;
+  const splittedToken = token?.split(' ')[1] as string;
+
+  const decodedShopkeeper = jwt.verify(
+    splittedToken,
+    config.jwt_access_secret as string,
+  );
+
+  const result = await ShopkeeperServices.changePasswordInDB(
+    passwordData,
+    decodedShopkeeper as TDecodedShopkeeper,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Password has been changed succesfully',
+    data: result,
+  });
+});
+
 export const ShopkeeperControllers = {
   registerShopkeeper,
   loginShopkeeper,
   verifyToken,
   getAccessTokenUsingRefreshToken,
+  changePassword,
 };

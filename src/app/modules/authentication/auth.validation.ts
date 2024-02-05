@@ -9,6 +9,10 @@ export const shopkeeperSchema = z.object({
     invalid_type_error: ' must be string',
     required_error: ' is required',
   }),
+  isEmailVerified: z.string({
+    invalid_type_error: ' must be boolean',
+    required_error: ' is required',
+  }),
   password: z.string({
     invalid_type_error: ' must be string',
     required_error: ' is required',
@@ -17,6 +21,33 @@ export const shopkeeperSchema = z.object({
     invalid_type_error: ' must be "shopkeeper"',
     required_error: ' is required',
   }),
+  lastTwoPasswords: z
+    .array(
+      z
+        .object({
+          oldPassword: z
+            .string({
+              invalid_type_error: ' must be string',
+              required_error: ' is required',
+            })
+            .optional(),
+          changedAt: z
+            .date({
+              invalid_type_error: ' must be a valid date',
+              required_error: ' is required',
+            })
+            .optional(),
+        })
+        .optional(),
+    )
+    .optional(),
+  profileImage: z
+    .string({
+      invalid_type_error: ' must be string',
+      required_error: ' is required',
+    })
+    .optional(),
+  photos: z.array(z.string()).optional(),
 });
 
 export const signupSchema = z.object({
@@ -40,6 +71,17 @@ export const loginSchema = z.object({
     required_error: ' is required',
   }),
   password: z.string({
+    invalid_type_error: ' must be string',
+    required_error: ' is required',
+  }),
+});
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string({
+    invalid_type_error: ' must be string',
+    required_error: ' is required',
+  }),
+  newPassword: z.string({
     invalid_type_error: ' must be string',
     required_error: ' is required',
   }),

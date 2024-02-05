@@ -45,6 +45,22 @@ const shopkeeperSchema = new Schema<TShopkeeper, TShopkeeperModel>(
       },
       default: 'shopkeeper',
     },
+    lastTwoPasswords: [
+      {
+        oldPassword: String,
+        changedAt: Date,
+      },
+    ],
+    profileImage: {
+      type: String,
+      default: '',
+    },
+    photos: [String],
+    isEmailVerified: {
+      type: String,
+      required: [true, 'isEmailVerified is required'],
+      default: 'false',
+    },
   },
   {
     timestamps: true,
