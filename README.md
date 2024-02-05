@@ -21,8 +21,8 @@
 
 ### live link
 
-- server: https://bloomhubserver.vercel.app
 - client: https://bloomhub.vercel.app
+- server: https://bloomhub-backend.vercel.app
 
 ### DEMO LOGIN DETAILS
 

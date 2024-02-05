@@ -74,22 +74,25 @@ const getAllSellsFromDB = async (query: any) => {
   const skip = (pageToBeFetched - 1) * limitToBeFetched;
 
   // Calculate the start date based on the specified timeframe
+  let weekAgo;
+  let monthAgo;
+  let yearAgo;
   switch (timeframe) {
     case 'daily':
       startDate = getTodaysDate();
       break;
     case 'weekly':
-      const weekAgo = new Date();
+      weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
       startDate = getFormattedDate(weekAgo);
       break;
     case 'monthly':
-      const monthAgo = new Date();
+      monthAgo = new Date();
       monthAgo.setMonth(monthAgo.getMonth() - 1);
       startDate = getFormattedDate(monthAgo);
       break;
     case 'yearly':
-      const yearAgo = new Date();
+      yearAgo = new Date();
       yearAgo.setFullYear(yearAgo.getFullYear() - 1);
       startDate = getFormattedDate(yearAgo);
       break;
@@ -122,7 +125,7 @@ const getAllSellsFromDB = async (query: any) => {
   } else {
     let totalRevenue = 0;
     let totalItemSold = 0;
-    let totalSellGenerated = await SellModel.countDocuments({
+    const totalSellGenerated = await SellModel.countDocuments({
       dateOfSell: { $gte: startDate },
       sellerEmail: shopkeepersEmail,
     });
