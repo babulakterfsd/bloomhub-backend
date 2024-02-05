@@ -8,3 +8,9 @@ export type TGenericErrorResponse = {
   message: string;
   errorSources: TErrorSources;
 };
+
+export type TCustomErrorForRecentPasswordChange = {
+  statusCode: number;
+  status: string;
+  message: string;
+};

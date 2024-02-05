@@ -192,7 +192,12 @@ const changePasswordInDB = async (
   }
 
   if (currentAccesstokenIssuedAt < lastPasswordChangedAt) {
-    throw new JsonWebTokenError('Unauthorized Access!');
+    // throw new JsonWebTokenError('Unauthorized Access!');
+    return {
+      statusCode: 406,
+      status: 'failed',
+      message: 'Recent password change detected.',
+    };
   }
 
   // check if the current password the shopkeeper gave is correct
@@ -268,7 +273,18 @@ const changePasswordInDB = async (
     },
   );
 
-  return result;
+  if (!result) {
+    throw new Error('Password change failed');
+  }
+
+  const modifiedResult = {
+    _id: result?._id,
+    name: result?.name,
+    email: result?.email,
+    role: result?.role,
+  };
+
+  return modifiedResult;
 };
 
 export const ShopkeeperServices = {

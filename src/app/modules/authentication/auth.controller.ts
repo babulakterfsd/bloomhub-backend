@@ -1,6 +1,7 @@
 import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
 import config from '../../config';
+import { TCustomErrorForRecentPasswordChange } from '../../interface/error';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { TDecodedShopkeeper } from './auth.interface';
@@ -86,12 +87,23 @@ const changePassword = catchAsync(async (req, res) => {
     decodedShopkeeper as TDecodedShopkeeper,
   );
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Password has been changed succesfully',
-    data: result,
-  });
+  const { statusCode, message } = result as TCustomErrorForRecentPasswordChange;
+
+  if (statusCode === 406 && message === 'Recent password change detected.') {
+    sendResponse(res, {
+      statusCode: httpStatus.NOT_ACCEPTABLE,
+      success: false,
+      message: 'Recent password change detected.',
+      data: null,
+    });
+  } else {
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Password has been changed succesfully',
+      data: result,
+    });
+  }
 });
 
 export const ShopkeeperControllers = {
