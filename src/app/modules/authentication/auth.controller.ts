@@ -106,10 +106,58 @@ const changePassword = catchAsync(async (req, res) => {
   }
 });
 
+// update shopkeeper profile
+const updateShopkeeperProfile = catchAsync(async (req, res) => {
+  const dataToBeUpdated = req.body;
+  const token = req?.headers?.authorization;
+  const splittedToken = token?.split(' ')[1] as string;
+
+  const decodedShopkeeper = jwt.verify(
+    splittedToken,
+    config.jwt_access_secret as string,
+  );
+
+  const result = await ShopkeeperServices.updateShopkeeperProfileInDB(
+    decodedShopkeeper as TDecodedShopkeeper,
+    dataToBeUpdated,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Shopkeeper profile has been updated succesfully',
+    data: result,
+  });
+});
+
+// get shopkeeper profile
+const getShopkeeperProfile = catchAsync(async (req, res) => {
+  const token = req?.headers?.authorization;
+  const splittedToken = token?.split(' ')[1] as string;
+
+  const decodedShopkeeper = jwt.verify(
+    splittedToken,
+    config.jwt_access_secret as string,
+  );
+
+  const { email } = decodedShopkeeper as TDecodedShopkeeper;
+
+  const result = await ShopkeeperServices.getShopkeeperFromDbByEmail(email);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Shopkeeper profile has been retrieved succesfully',
+    data: result,
+  });
+});
+
 export const ShopkeeperControllers = {
   registerShopkeeper,
   loginShopkeeper,
   verifyToken,
   getAccessTokenUsingRefreshToken,
   changePassword,
+  updateShopkeeperProfile,
+  getShopkeeperProfile,
 };

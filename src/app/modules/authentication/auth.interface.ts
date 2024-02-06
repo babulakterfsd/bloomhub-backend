@@ -26,6 +26,11 @@ export type TShopkeeper = {
   __v?: number;
 };
 
+export type TShopkeeperProfileDataToBeUpdated = {
+  name: string;
+  profileImage: string;
+};
+
 export type TShopkeeperRole = 'shopkeeper';
 
 export type TDecodedShopkeeper = {

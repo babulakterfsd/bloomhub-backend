@@ -6,11 +6,13 @@ import jwt, { JsonWebTokenError, JwtPayload } from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import config from '../../config';
 import AppError from '../../errors/AppError';
+
 import {
   TChangePasswordData,
   TDecodedShopkeeper,
   TLastPassword,
   TShopkeeper,
+  TShopkeeperProfileDataToBeUpdated,
 } from './auth.interface';
 import { ShopkeeperModel } from './auth.model';
 
@@ -287,10 +289,75 @@ const changePasswordInDB = async (
   return modifiedResult;
 };
 
+//update shopkeeper profile
+const updateShopkeeperProfileInDB = async (
+  shopkeeper: TDecodedShopkeeper,
+  dataToBeUpdated: TShopkeeperProfileDataToBeUpdated,
+) => {
+  const { name, profileImage } = dataToBeUpdated;
+
+  const shopkeeperFromDB = await ShopkeeperModel.findOne({
+    email: shopkeeper?.email,
+  });
+
+  if (!shopkeeperFromDB) {
+    throw new JsonWebTokenError('Unauthorized Access!');
+  }
+
+  const result = await ShopkeeperModel.findOneAndUpdate(
+    { email: shopkeeperFromDB?.email },
+    {
+      name,
+      profileImage,
+    },
+    {
+      new: true,
+    },
+  );
+
+  if (!result) {
+    throw new Error('Update failed');
+  }
+
+  const modifiedResult = {
+    _id: result?._id,
+    name: result?.name,
+    email: result?.email,
+    role: result?.role,
+    profileImage: result?.profileImage,
+  };
+
+  return modifiedResult;
+};
+
+// get shopkeeper by email
+const getShopkeeperFromDbByEmail = async (email: string) => {
+  if (!email) {
+    throw new Error('Email is required');
+  } else {
+    const shopkeeperFromDB = await ShopkeeperModel.findOne({
+      email,
+    });
+    const modifiedShopkeeper = {
+      _id: shopkeeperFromDB?._id,
+      name: shopkeeperFromDB?.name,
+      email: shopkeeperFromDB?.email,
+      role: shopkeeperFromDB?.role,
+      profileImage: shopkeeperFromDB?.profileImage,
+      isEmailVerified: shopkeeperFromDB?.isEmailVerified,
+      photos: shopkeeperFromDB?.photos,
+    };
+
+    return modifiedShopkeeper;
+  }
+};
+
 export const ShopkeeperServices = {
   registerShopkeeperInDB,
   loginShopkeeperInDB,
   verifyToken,
   getAccessTokenByRefreshToken,
   changePasswordInDB,
+  updateShopkeeperProfileInDB,
+  getShopkeeperFromDbByEmail,
 };

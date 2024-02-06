@@ -1,13 +1,20 @@
 import express from 'express';
+import auth from '../../middlewares/auth';
 import validateRequest from '../../middlewares/validateRequest';
 import { ShopkeeperControllers } from './auth.controller';
 import {
-  changePasswordSchema,
   loginSchema,
   signupSchema,
+  updateProfileSchema,
 } from './auth.validation';
 
 const router = express.Router();
+
+router.get(
+  '/get-profile',
+  auth('shopkeeper'),
+  ShopkeeperControllers.getShopkeeperProfile,
+);
 
 router.post(
   '/register',
@@ -23,8 +30,14 @@ router.post(
 
 router.post(
   '/change-password',
-  validateRequest(changePasswordSchema),
+  // validateRequest(changePasswordSchema),
   ShopkeeperControllers.changePassword,
+);
+
+router.put(
+  '/update-profile',
+  validateRequest(updateProfileSchema),
+  ShopkeeperControllers.updateShopkeeperProfile,
 );
 
 router.post('/verify-token', ShopkeeperControllers.verifyToken);
