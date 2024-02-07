@@ -28,7 +28,7 @@ export type TShopkeeper = {
 
 export type TShopkeeperProfileDataToBeUpdated = {
   name: string;
-  profileImage: string;
+  profileImage: string | any;
 };
 
 export type TShopkeeperRole = 'shopkeeper';

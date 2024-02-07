@@ -108,7 +108,6 @@ const changePassword = catchAsync(async (req, res) => {
 
 // update shopkeeper profile
 const updateShopkeeperProfile = catchAsync(async (req, res) => {
-  const dataToBeUpdated = req.body;
   const token = req?.headers?.authorization;
   const splittedToken = token?.split(' ')[1] as string;
 
@@ -119,7 +118,8 @@ const updateShopkeeperProfile = catchAsync(async (req, res) => {
 
   const result = await ShopkeeperServices.updateShopkeeperProfileInDB(
     decodedShopkeeper as TDecodedShopkeeper,
-    dataToBeUpdated,
+    req.body,
+    req.file,
   );
 
   sendResponse(res, {

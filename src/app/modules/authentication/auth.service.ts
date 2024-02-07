@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 import config from '../../config';
 import AppError from '../../errors/AppError';
 
+import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 import {
   TChangePasswordData,
   TDecodedShopkeeper,
@@ -293,8 +294,27 @@ const changePasswordInDB = async (
 const updateShopkeeperProfileInDB = async (
   shopkeeper: TDecodedShopkeeper,
   dataToBeUpdated: TShopkeeperProfileDataToBeUpdated,
+  file: any,
 ) => {
-  const { name, profileImage } = dataToBeUpdated;
+  if (file) {
+    const imageName = `${shopkeeper?.name}${Math.floor(Math.random() * 9999)}`;
+    const path = file?.path;
+
+    //check if the file is an image of type jpeg, jpg or png and less than 1MB
+    if (!file?.mimetype.startsWith('image') || file?.size > 1000000) {
+      throw new Error('Please upload an image file which is less than 1MB');
+    } else if (
+      !file?.mimetype.endsWith('jpeg') &&
+      !file?.mimetype.endsWith('jpg') &&
+      !file?.mimetype.endsWith('png')
+    ) {
+      throw new Error('Please upload an image file of type jpeg, jpg or png');
+    }
+
+    //send image to cloudinary
+    const { secure_url } = await sendImageToCloudinary(imageName, path);
+    dataToBeUpdated.profileImage = secure_url;
+  }
 
   const shopkeeperFromDB = await ShopkeeperModel.findOne({
     email: shopkeeper?.email,
@@ -304,11 +324,15 @@ const updateShopkeeperProfileInDB = async (
     throw new JsonWebTokenError('Unauthorized Access!');
   }
 
+  const { name, profileImage } = dataToBeUpdated;
+
   const result = await ShopkeeperModel.findOneAndUpdate(
     { email: shopkeeperFromDB?.email },
     {
-      name,
-      profileImage,
+      name: name ? name : shopkeeperFromDB?.name,
+      profileImage: profileImage
+        ? profileImage
+        : shopkeeperFromDB?.profileImage,
     },
     {
       new: true,
