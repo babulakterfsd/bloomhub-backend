@@ -88,12 +88,16 @@ export const changePasswordSchema = z.object({
 });
 
 export const updateProfileSchema = z.object({
-  name: z.string({
-    invalid_type_error: ' must be string',
-    required_error: ' is required',
-  }),
-  profileImage: z.string({
-    invalid_type_error: ' must be string',
-    required_error: ' is required',
-  }),
+  name: z
+    .string({
+      invalid_type_error: ' must be string',
+      required_error: ' is required',
+    })
+    .optional(),
+  profileImage: z
+    .string({
+      invalid_type_error: ' must be string',
+      required_error: ' is required',
+    })
+    .optional(),
 });

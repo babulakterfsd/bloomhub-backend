@@ -7,7 +7,6 @@ import mongoose from 'mongoose';
 import config from '../../config';
 import AppError from '../../errors/AppError';
 
-import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 import {
   TChangePasswordData,
   TDecodedShopkeeper,
@@ -180,6 +179,13 @@ const changePasswordInDB = async (
     throw new JsonWebTokenError('Unauthorized Access!');
   }
 
+  if (shopkeeperFromDB?.email === 'xpawal@gmail.com') {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Password change is not allowed for this demo account',
+    );
+  }
+
   const currentAccesstokenIssuedAt = shopkeeper?.iat * 1000;
 
   let lastPasswordChangedAt: Date | number = shopkeeperFromDB
@@ -294,28 +300,7 @@ const changePasswordInDB = async (
 const updateShopkeeperProfileInDB = async (
   shopkeeper: TDecodedShopkeeper,
   dataToBeUpdated: TShopkeeperProfileDataToBeUpdated,
-  file: any,
 ) => {
-  if (file) {
-    const imageName = `${shopkeeper?.name}${Math.floor(Math.random() * 9999)}`;
-    const path = file?.path;
-
-    //check if the file is an image of type jpeg, jpg or png and less than 1MB
-    if (!file?.mimetype.startsWith('image') || file?.size > 1000000) {
-      throw new Error('Please upload an image file which is less than 1MB');
-    } else if (
-      !file?.mimetype.endsWith('jpeg') &&
-      !file?.mimetype.endsWith('jpg') &&
-      !file?.mimetype.endsWith('png')
-    ) {
-      throw new Error('Please upload an image file of type jpeg, jpg or png');
-    }
-
-    //send image to cloudinary
-    const { secure_url } = await sendImageToCloudinary(imageName, path);
-    dataToBeUpdated.profileImage = secure_url;
-  }
-
   const shopkeeperFromDB = await ShopkeeperModel.findOne({
     email: shopkeeper?.email,
   });
