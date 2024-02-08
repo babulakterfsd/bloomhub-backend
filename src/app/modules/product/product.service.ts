@@ -28,14 +28,6 @@ const createProductInDB = async (product: TProduct) => {
 
 //get all products from DB
 const getAllProductsFromDB = async (query: any) => {
-  const totalDocs = await ProductModel.countDocuments();
-
-  const meta = {
-    page: Number(query.page) || 1,
-    limit: Number(query.limit) || 50,
-    total: totalDocs,
-  };
-
   const {
     page,
     limit,
@@ -54,6 +46,16 @@ const getAllProductsFromDB = async (query: any) => {
     arrangementStyle,
     occasion,
   } = query;
+
+  const totalDocs = await ProductModel.countDocuments({
+    creatorsEmail: shopkeepersEmail,
+  });
+
+  const meta = {
+    page: Number(page) || 1,
+    limit: Number(limit) || 5,
+    total: totalDocs,
+  };
 
   //implement pagination
   const pageToBeFetched = Number(page) || 1;

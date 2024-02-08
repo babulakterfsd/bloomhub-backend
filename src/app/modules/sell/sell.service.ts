@@ -70,7 +70,7 @@ const getAllSellsFromDB = async (query: any) => {
 
   //implement pagination
   const pageToBeFetched = Number(page) || 1;
-  const limitToBeFetched = Number(limit) || 10;
+  const limitToBeFetched = Number(limit) || 5;
   const skip = (pageToBeFetched - 1) * limitToBeFetched;
 
   // Calculate the start date based on the specified timeframe

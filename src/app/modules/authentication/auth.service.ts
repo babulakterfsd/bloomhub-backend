@@ -243,8 +243,8 @@ const changePasswordInDB = async (
   }
 
   // Check if the new password meets the minimum requirements
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
-  if (!newPassword.match(passwordRegex)) {
+
+  if (newPassword.length < 6 || !/\d/.test(newPassword)) {
     throw new Error(
       'New password must be minimum 6 characters and include both letters and numbers',
     );
