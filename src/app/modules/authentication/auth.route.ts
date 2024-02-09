@@ -4,7 +4,9 @@ import validateRequest from '../../middlewares/validateRequest';
 import { ShopkeeperControllers } from './auth.controller';
 import {
   changePasswordSchema,
+  forgotPasswordSchema,
   loginSchema,
+  resetForgottenPasswordSchema,
   signupSchema,
   updateProfileSchema,
 } from './auth.validation';
@@ -33,6 +35,18 @@ router.post(
   '/change-password',
   validateRequest(changePasswordSchema),
   ShopkeeperControllers.changePassword,
+);
+
+router.post(
+  '/forgot-password',
+  validateRequest(forgotPasswordSchema),
+  ShopkeeperControllers.forgotPassword,
+);
+
+router.post(
+  '/reset-forgotten-password',
+  validateRequest(resetForgottenPasswordSchema),
+  ShopkeeperControllers.resetForgottenPassword,
 );
 
 router.put(

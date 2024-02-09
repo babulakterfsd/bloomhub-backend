@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 import config from '../../config';
 import AppError from '../../errors/AppError';
 
+import { sendEmail } from '../../utils/sendEmail';
 import {
   TChangePasswordData,
   TDecodedShopkeeper,
@@ -296,6 +297,124 @@ const changePasswordInDB = async (
   return modifiedResult;
 };
 
+//forgot password
+const forgetPasswordInDB = async (shopkeeperEmail: string) => {
+  if (!shopkeeperEmail) {
+    throw new Error('Invalid email');
+  }
+  const emailRegex = /^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(shopkeeperEmail)) {
+    throw new Error('Invalid email format');
+  }
+
+  if (shopkeeperEmail === 'xpawal@gmail.com') {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Password reset is not allowed for this demo account',
+    );
+  }
+
+  const shopkeeperFromDB = await ShopkeeperModel.findOne({
+    email: shopkeeperEmail,
+  });
+  if (!shopkeeperFromDB) {
+    throw new Error('No account found with that email');
+  }
+
+  const payload = {
+    email: shopkeeperFromDB?.email,
+  };
+  const resettoken = jwt.sign(payload, config.jwt_access_secret as string, {
+    expiresIn: '5m',
+  });
+
+  const resetUrl = `${config.client_url}/forgot-password?email=${shopkeeperEmail}&token=${resettoken}`;
+
+  sendEmail(
+    shopkeeperFromDB?.email,
+    `<p>Click <a href="${resetUrl}" target="_blank">here</a> to reset your password</p> . <br/> <p>If you didn't request a password reset, please ignore this email.After 5 mins, the link will be invalid</p>`,
+  );
+
+  return resetUrl;
+};
+
+// reset forgotten password
+const resetForgottenPasswordInDB = async (
+  shopkeeperEmail: string,
+  resetToken: string,
+  newPassword: string,
+) => {
+  if (!shopkeeperEmail || !resetToken || !newPassword) {
+    throw new Error('Invalid data');
+  } else if (newPassword.length < 6 || !/\d/.test(newPassword)) {
+    throw new Error(
+      'New password must be minimum 6 characters and include both letters and numbers',
+    );
+  } else if (shopkeeperEmail === 'xpawal@gmail.com') {
+    throw new Error('Password reset is not allowed for this demo account');
+  }
+
+  const shopkeeperFromDB = await ShopkeeperModel.findOne({
+    email: shopkeeperEmail,
+  });
+  if (!shopkeeperFromDB) {
+    throw new Error('No account found with that email');
+  } else {
+    // checking token is valid or not
+    let decodedShopkeeper: JwtPayload | string;
+
+    try {
+      decodedShopkeeper = jwt.verify(
+        resetToken as string,
+        config.jwt_access_secret as string,
+      ) as JwtPayload;
+    } catch (error) {
+      throw new Error('Invalid or expired token');
+    }
+
+    if (decodedShopkeeper.email !== shopkeeperEmail) {
+      throw new Error('Invalid token');
+    }
+
+    const shopkeeperFromDB = await ShopkeeperModel.findOne({
+      email: shopkeeperEmail,
+    });
+    if (!shopkeeperFromDB) {
+      throw new Error(
+        'No account found with that email while resetting password',
+      );
+    }
+
+    const hashedNewPassword = await bcrypt.hash(
+      newPassword,
+      Number(config.bcrypt_salt_rounds),
+    );
+
+    const result = await ShopkeeperModel.findOneAndUpdate(
+      { email: shopkeeperFromDB?.email },
+      {
+        password: hashedNewPassword,
+      },
+      {
+        new: true,
+      },
+    );
+
+    if (!result) {
+      throw new Error('Password reset failed');
+    }
+
+    const modifiedResult = {
+      _id: result?._id,
+      name: result?.name,
+      email: result?.email,
+      role: result?.role,
+    };
+
+    return modifiedResult;
+  }
+};
+
 //update shopkeeper profile
 const updateShopkeeperProfileInDB = async (
   shopkeeper: TDecodedShopkeeper,
@@ -367,6 +486,8 @@ export const ShopkeeperServices = {
   verifyToken,
   getAccessTokenByRefreshToken,
   changePasswordInDB,
+  forgetPasswordInDB,
+  resetForgottenPasswordInDB,
   updateShopkeeperProfileInDB,
   getShopkeeperFromDbByEmail,
 };

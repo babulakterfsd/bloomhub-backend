@@ -106,6 +106,38 @@ const changePassword = catchAsync(async (req, res) => {
   }
 });
 
+//forgot password
+const forgotPassword = catchAsync(async (req, res) => {
+  const { shopkeeperEmail } = req.body;
+  const result = await ShopkeeperServices.forgetPasswordInDB(shopkeeperEmail);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Password reset link has been sent to your email',
+    data: result,
+  });
+});
+
+// reset forgotten password
+const resetForgottenPassword = catchAsync(async (req, res) => {
+  const { newPassword, shopkeeperEmail } = req.body;
+  let token = req?.headers?.authorization;
+  token = token?.split(' ')[1] as string;
+  const result = await ShopkeeperServices.resetForgottenPasswordInDB(
+    shopkeeperEmail,
+    token,
+    newPassword,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Password has been reset succesfully',
+    data: result,
+  });
+});
+
 // update shopkeeper profile
 const updateShopkeeperProfile = catchAsync(async (req, res) => {
   const dataToBeUpdated = req.body;
@@ -158,6 +190,8 @@ export const ShopkeeperControllers = {
   verifyToken,
   getAccessTokenUsingRefreshToken,
   changePassword,
+  forgotPassword,
+  resetForgottenPassword,
   updateShopkeeperProfile,
   getShopkeeperProfile,
 };

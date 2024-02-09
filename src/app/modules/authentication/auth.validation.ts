@@ -87,6 +87,24 @@ export const changePasswordSchema = z.object({
   }),
 });
 
+export const forgotPasswordSchema = z.object({
+  shopkeeperEmail: z.string({
+    invalid_type_error: ' must be string',
+    required_error: ' is required',
+  }),
+});
+
+export const resetForgottenPasswordSchema = z.object({
+  shopkeeperEmail: z.string({
+    invalid_type_error: ' must be string',
+    required_error: ' is required',
+  }),
+  newPassword: z.string({
+    invalid_type_error: ' must be string',
+    required_error: ' is required',
+  }),
+});
+
 export const updateProfileSchema = z.object({
   name: z
     .string({
