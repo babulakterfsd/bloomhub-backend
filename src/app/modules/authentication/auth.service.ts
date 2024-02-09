@@ -335,7 +335,7 @@ const forgetPasswordInDB = async (shopkeeperEmail: string) => {
     `<p>Click <a href="${resetUrl}" target="_blank">here</a> to reset your password</p> . <br/> <p>If you didn't request a password reset, please ignore this email.After 5 mins, the link will be invalid</p>`,
   );
 
-  return resetUrl;
+  return null;
 };
 
 // reset forgotten password
