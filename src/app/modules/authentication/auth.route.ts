@@ -55,6 +55,11 @@ router.put(
   ShopkeeperControllers.updateShopkeeperProfile,
 );
 
+router.put(
+  '/delete-photo-from-profile',
+  ShopkeeperControllers.deletePhotoFromShopkeeperProfile,
+);
+
 router.post('/verify-token', ShopkeeperControllers.verifyToken);
 
 router.post(

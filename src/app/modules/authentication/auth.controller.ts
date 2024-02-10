@@ -162,6 +162,30 @@ const updateShopkeeperProfile = catchAsync(async (req, res) => {
   });
 });
 
+// delete photo from shopkeeper profile
+const deletePhotoFromShopkeeperProfile = catchAsync(async (req, res) => {
+  const { photoUrl } = req.body;
+  const token = req?.headers?.authorization;
+  const splittedToken = token?.split(' ')[1] as string;
+
+  const decodedShopkeeper = jwt.verify(
+    splittedToken,
+    config.jwt_access_secret as string,
+  );
+
+  const result = await ShopkeeperServices.deleteAPhotoFromShopkeeperProfileInDB(
+    decodedShopkeeper as TDecodedShopkeeper,
+    photoUrl as string,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Photo has been deleted succesfully',
+    data: result,
+  });
+});
+
 // get shopkeeper profile
 const getShopkeeperProfile = catchAsync(async (req, res) => {
   const token = req?.headers?.authorization;
@@ -193,5 +217,6 @@ export const ShopkeeperControllers = {
   forgotPassword,
   resetForgottenPassword,
   updateShopkeeperProfile,
+  deletePhotoFromShopkeeperProfile,
   getShopkeeperProfile,
 };

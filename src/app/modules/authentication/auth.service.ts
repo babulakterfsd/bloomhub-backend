@@ -468,6 +468,47 @@ const updateShopkeeperProfileInDB = async (
   return modifiedResult;
 };
 
+// delete a photo from shopkeeper profile
+const deleteAPhotoFromShopkeeperProfileInDB = async (
+  shopkeeper: TDecodedShopkeeper,
+  photoUrl: string,
+) => {
+  const shopkeeperFromDB = await ShopkeeperModel.findOne({
+    email: shopkeeper?.email,
+  });
+
+  if (!shopkeeperFromDB) {
+    throw new JsonWebTokenError('Unauthorized Access!');
+  }
+
+  const existingPhotos: string[] = shopkeeperFromDB?.photos as string[];
+  const updatedPhotos = existingPhotos.filter((photo) => photo !== photoUrl);
+
+  const result = await ShopkeeperModel.findOneAndUpdate(
+    { email: shopkeeperFromDB?.email },
+    {
+      photos: updatedPhotos,
+    },
+    {
+      new: true,
+    },
+  );
+
+  if (!result) {
+    throw new Error('Failed to delete photo');
+  }
+
+  const modifiedResult = {
+    _id: result?._id,
+    name: result?.name,
+    email: result?.email,
+    role: result?.role,
+    profileImage: result?.profileImage,
+  };
+
+  return modifiedResult;
+};
+
 // get shopkeeper by email
 const getShopkeeperFromDbByEmail = async (email: string) => {
   if (!email) {
@@ -499,5 +540,6 @@ export const ShopkeeperServices = {
   forgetPasswordInDB,
   resetForgottenPasswordInDB,
   updateShopkeeperProfileInDB,
+  deleteAPhotoFromShopkeeperProfileInDB,
   getShopkeeperFromDbByEmail,
 };
