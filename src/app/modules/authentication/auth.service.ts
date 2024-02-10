@@ -430,6 +430,15 @@ const updateShopkeeperProfileInDB = async (
 
   const { name, profileImage } = dataToBeUpdated;
 
+  let existingPhotos: string[] = shopkeeperFromDB?.photos as string[];
+  if (profileImage) {
+    if (existingPhotos?.includes(profileImage)) {
+      existingPhotos = shopkeeperFromDB?.photos as string[];
+    } else {
+      existingPhotos = [...existingPhotos, profileImage as string];
+    }
+  }
+
   const result = await ShopkeeperModel.findOneAndUpdate(
     { email: shopkeeperFromDB?.email },
     {
@@ -437,6 +446,7 @@ const updateShopkeeperProfileInDB = async (
       profileImage: profileImage
         ? profileImage
         : shopkeeperFromDB?.profileImage,
+      photos: existingPhotos,
     },
     {
       new: true,
