@@ -2,7 +2,7 @@
   "name": "bloomhub",
   "version": "1.0.0",
   "description": "create apis for bloomhub",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "start:prod": "node server.js",
     "start:dev": "ts-node-dev --respawn --transpile-only src/server.ts",
