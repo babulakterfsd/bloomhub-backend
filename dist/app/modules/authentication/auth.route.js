@@ -1,0 +1,23 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AuthRoutes = void 0;
+const express_1 = __importDefault(require("express"));
+const auth_1 = __importDefault(require("../../middlewares/auth"));
+const validateRequest_1 = __importDefault(require("../../middlewares/validateRequest"));
+const auth_controller_1 = require("./auth.controller");
+const auth_validation_1 = require("./auth.validation");
+const router = express_1.default.Router();
+router.get('/get-profile', (0, auth_1.default)('shopkeeper'), auth_controller_1.ShopkeeperControllers.getShopkeeperProfile);
+router.post('/register', (0, validateRequest_1.default)(auth_validation_1.signupSchema), auth_controller_1.ShopkeeperControllers.registerShopkeeper);
+router.post('/login', (0, validateRequest_1.default)(auth_validation_1.loginSchema), auth_controller_1.ShopkeeperControllers.loginShopkeeper);
+router.post('/change-password', (0, validateRequest_1.default)(auth_validation_1.changePasswordSchema), auth_controller_1.ShopkeeperControllers.changePassword);
+router.post('/forgot-password', (0, validateRequest_1.default)(auth_validation_1.forgotPasswordSchema), auth_controller_1.ShopkeeperControllers.forgotPassword);
+router.post('/reset-forgotten-password', (0, validateRequest_1.default)(auth_validation_1.resetForgottenPasswordSchema), auth_controller_1.ShopkeeperControllers.resetForgottenPassword);
+router.put('/update-profile', (0, validateRequest_1.default)(auth_validation_1.updateProfileSchema), auth_controller_1.ShopkeeperControllers.updateShopkeeperProfile);
+router.put('/delete-photo-from-profile', auth_controller_1.ShopkeeperControllers.deletePhotoFromShopkeeperProfile);
+router.post('/verify-token', auth_controller_1.ShopkeeperControllers.verifyToken);
+router.post('/refresh-token', auth_controller_1.ShopkeeperControllers.getAccessTokenUsingRefreshToken);
+exports.AuthRoutes = router;
